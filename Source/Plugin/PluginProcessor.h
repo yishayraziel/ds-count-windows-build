@@ -49,7 +49,7 @@ public:
     dsq::PresetManager presets;
     dsq::Chain chain;
 
-    int uiWidth = 1440;
+    int uiWidth = 1296;
 
 private:
     template <typename T> void process (juce::AudioBuffer<T>&);

@@ -36,7 +36,12 @@ jobs:
         run: |
           $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(DSCount VERSION ([0-9.]+)').Matches[0].Groups[1].Value
           $tag = "v$version"
-          $files = @(Get-ChildItem dist/*.exe) + @(Get-ChildItem release/*.dmg -ErrorAction SilentlyContinue) | ForEach-Object { $_.FullName }
+          # Versioned files plus copies with stable names, so https://yraziel.com/ds-count always links to the latest.
+          New-Item -ItemType Directory -Force stable | Out-Null
+          Copy-Item (Get-ChildItem dist/*.exe | Select-Object -First 1).FullName stable/DS-COUNT-Windows-x64-Setup.exe
+          $dmg = Get-ChildItem release/*.dmg -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "*$version*" } | Select-Object -First 1
+          if ($dmg) { Copy-Item $dmg.FullName stable/DS-COUNT-macOS.dmg }
+          $files = @(Get-ChildItem dist/*.exe) + @($dmg) + @(Get-ChildItem stable/*) | Where-Object { $_ } | ForEach-Object { $_.FullName }
           gh release view $tag 2>$null | Out-Null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag @files --clobber

@@ -43,6 +43,8 @@ float textWidth (const juce::String&, bool bold = true, float pointHeight = 18.0
 /** Desktop behind the windows: white MDI client (3.11) or 50 % dither (Classic). */
 void desktop (juce::Graphics&, juce::Rectangle<float>);
 /** A document window with its title bar. Returns the client area. */
+/** A 3.11 title-bar minimise (down) or maximise (up) box. */
+void titleBox (juce::Graphics& g, juce::Rectangle<float> r, bool up, bool pressed = false);
 juce::Rectangle<float> window (juce::Graphics&, juce::Rectangle<float>, const juce::String& title, bool active,
                                bool clientGray = true, bool minMax = true);
 /** Group box with a caption. */
@@ -92,6 +94,7 @@ public:
     juce::Font getAlertWindowFont() override { return ui (18.0f, false); }
     juce::Font getTextButtonFont (juce::TextButton&, int) override { return ui (18.0f, true); }
     void drawPopupMenuBackground (juce::Graphics&, int w, int h) override;
+    void drawCornerResizer (juce::Graphics&, int w, int h, bool isMouseOver, bool isMouseDragging) override;
     void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
     void drawTooltip (juce::Graphics&, const juce::String&, int w, int h) override;
     juce::Rectangle<int> getTooltipBounds (const juce::String&, juce::Point<int>, juce::Rectangle<int>) override;

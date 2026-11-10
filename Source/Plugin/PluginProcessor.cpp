@@ -129,7 +129,7 @@ void DSCountProcessor::setStateInformation (const void* data, int size)
     auto root = juce::ValueTree::fromXml (*xml);
     if (! root.hasType ("DSCOUNT"))
         return;
-    uiWidth = (int) root.getProperty ("uiWidth", 1440);
+    uiWidth = (int) root.getProperty ("uiWidth", 1296);
     auto state = root.getChildWithName (apvts.state.getType());
     const bool v1 = root.getProperty ("version").toString().startsWith ("1.");
     if (v1)

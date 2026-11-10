@@ -21,7 +21,8 @@
   further down than its frequency setting suggests.
 
 ## Interface
-* The interface keeps a fixed 1620:968 aspect ratio and scales from 1300 to 2560 pixels wide.
+* The interface keeps a fixed 1620:968 aspect ratio and scales from 972 to 2560 pixels wide (60 % to 158 %);
+  Options > Size has 60, 75, 100, 125 and 150 % and Fit to Screen. Below about 75 % the smallest labels get small.
 * The skin and the screen effect are global preferences (saved in `~/Library/Application Support/DS-COUNT/Settings.xml`
   on a Mac), not part of a session: all open instances follow the last change.
 * The screen effect renders the whole editor off-screen and filters it on the message thread. On the Linux build
@@ -29,6 +30,7 @@
   (30 Hz when off). Turn it off on slow machines or with many editors open. Audio processing is not affected.
 * With the screen effect on, the editor is drawn at no more than about 1.8 million pixels and scaled to the
   window, so on large Retina windows it is slightly softer than with the effect off (by design, it is a CRT).
-* The 3.11 and Classic menu bars, title bars and window buttons are part of the drawing: the minimise and
-  maximise boxes do nothing; the menus work.
+* The 3.11 title bar's maximise box zooms to the largest size that fits the screen and back, and the minimise
+  box shrinks to 60 %; the boxes on the inner windows are decoration. The Classic skin resizes from the corner and
+  Options > Size.
 * There is no MIDI learn or external control mapping beyond host automation.

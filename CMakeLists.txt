@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(DSCount VERSION 2.0.0 LANGUAGES C CXX)
+project(DSCount VERSION 2.0.1 LANGUAGES C CXX)
 
 # Single place for the product identity. Change these two lines to rebrand.
 set(DSCOUNT_PRODUCT_NAME "DS-COUNT")

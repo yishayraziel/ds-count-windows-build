@@ -227,19 +227,21 @@ juce::Rectangle<float> window (juce::Graphics& g, juce::Rectangle<float> r, cons
     outline (g, barIcon);
     if (minMax)
         for (int i = 0; i < 2; ++i)
-        {
-            auto b = bar.removeFromRight (25.0f);
-            g.setColour (c::silver);
-            g.fillRect (b);
-            bevel (g, b.withTrimmedLeft (1.0f), true, 1.0f);
-            g.setColour (c::black);
-            g.drawVerticalLine ((int) b.getX(), b.getY(), b.getBottom());
-            triangle (g, b.withSizeKeepingCentre (9.0f, 5.0f), i == 0 ? 0 : 2, c::black);
-        }
+            titleBox (g, bar.removeFromRight (25.0f), i == 0);
     text (g, title, bar, juce::Justification::centred, true, false, active ? c::white : c::black);
     g.setColour (clientGray ? c::silver : c::white);
     g.fillRect (in);
     return in;
+}
+
+void titleBox (juce::Graphics& g, juce::Rectangle<float> b, bool up, bool pressed)
+{
+    g.setColour (c::silver);
+    g.fillRect (b);
+    bevel (g, b.withTrimmedLeft (1.0f), ! pressed, 1.0f);
+    g.setColour (c::black);
+    g.drawVerticalLine ((int) b.getX(), b.getY(), b.getBottom());
+    triangle (g, b.withSizeKeepingCentre (9.0f, 5.0f).translated (pressed ? 1.0f : 0.0f, pressed ? 1.0f : 0.0f), up ? 0 : 2, c::black);
 }
 
 void groupBox (juce::Graphics& g, juce::Rectangle<float> r, const juce::String& title)
@@ -671,6 +673,37 @@ void LookAndFeel::refresh()
     setColour (juce::TooltipWindow::backgroundColourId, c::white);
     setColour (juce::TooltipWindow::textColourId, c::black);
     setColour (juce::TooltipWindow::outlineColourId, c::black);
+}
+
+void LookAndFeel::drawCornerResizer (juce::Graphics& g, int w, int h, bool, bool)
+{
+    const float s = (float) juce::jmin (w, h);
+    if (classic())
+    {
+        // The grow box of the 1984 desktop: two overlapping squares.
+        g.setColour (c::white);
+        g.fillRect (0.0f, 0.0f, s, s);
+        g.setColour (c::black);
+        g.drawRect (0.0f, 0.0f, s, s, 1.0f);
+        const float u = s / 16.0f;
+        g.drawRect (3.0f * u, 3.0f * u, 7.0f * u, 7.0f * u, 1.0f);
+        g.setColour (c::white);
+        g.fillRect (6.0f * u, 6.0f * u, 7.0f * u, 7.0f * u);
+        g.setColour (c::black);
+        g.drawRect (6.0f * u, 6.0f * u, 7.0f * u, 7.0f * u, 1.0f);
+        return;
+    }
+    // 3.11 palette: a sizing grip of etched diagonal lines.
+    g.setColour (c::silver);
+    g.fillRect (0.0f, 0.0f, s, s);
+    for (int i = 0; i < 3; ++i)
+    {
+        const float o = s * (0.25f + 0.25f * (float) i);
+        g.setColour (c::white);
+        g.drawLine (o - 1.0f, s, s, o - 1.0f, 1.0f);
+        g.setColour (c::gray);
+        g.drawLine (o, s, s, o, 1.5f);
+    }
 }
 
 void LookAndFeel::drawPopupMenuBackground (juce::Graphics& g, int w, int h)

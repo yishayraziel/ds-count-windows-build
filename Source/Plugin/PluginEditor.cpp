@@ -4,6 +4,7 @@ using namespace dsq;
 namespace c = dsq::theme::c;
 
 // Layout of the 1620 x 968 design space, shared by both skins.
+static const juce::Rectangle<float> kMaxBox { 1590, 0, 30, 30 }, kMinBox { 1560, 0, 30, 30 };
 static const juce::Rectangle<float> kLoud { 8, 126, 420, 300 }, kLevels { 436, 126, 330, 300 };
 static const juce::Rectangle<int> kGraphs { 774, 126, 838, 300 }, kPanel { 12, 494, 1596, 430 };
 static const juce::Rectangle<float> kModule { 8, 434, 1604, 494 };
@@ -144,11 +145,10 @@ DSCountEditor::DSCountEditor (DSCountProcessor& p)
     ditherType.setTooltip ("Dither shape: TPDF or one of three noise-shaping curves");
 
     setResizable (true, true);
-    setResizeLimits (1300, 777, 2560, 1530);
+    setResizeLimits (kMinW, heightFor (kMinW), kMaxW, heightFor (kMaxW));
     if (auto* cst = getConstrainer())
         cst->setFixedAspectRatio ((double) kDesignW / kDesignH);
-    const int w = juce::jlimit (1300, 2560, proc.uiWidth);
-    setSize (w, juce::roundToInt (w * (double) kDesignH / kDesignW));
+    setWidth (proc.uiWidth);
     applySkin();
 }
 
@@ -277,11 +277,47 @@ void DSCountEditor::surfaceClick (juce::Point<float> pt)
             return showMenu (i);
     if (theme::classic() && juce::Rectangle<float> (14, 0, 46, 32).contains (pt))
         return showMenu (5);   // the mark holds Help
+    if (! theme::classic() && kMaxBox.contains (pt))
+        return toggleZoom();
+    if (! theme::classic() && kMinBox.contains (pt))
+        return setWidth (kMinW);
     if (metersArea.contains (pt))
         return resetMeters();
     if (peakModePane.contains (pt))
         if (auto* pm = proc.apvts.getParameter (ids::peakMeter))
             pm->setValueNotifyingHost (pm->getValue() > 0.5f ? 0.0f : 1.0f);
+}
+
+void DSCountEditor::setWidth (int w)
+{
+    w = juce::jlimit (kMinW, kMaxW, w);
+    setSize (w, heightFor (w));
+}
+
+int DSCountEditor::fitWidth() const
+{
+    // The largest size that fits the screen the editor is on, leaving room for the host's window frame.
+    auto& displays = juce::Desktop::getInstance().getDisplays();
+    const auto* d = isShowing() ? displays.getDisplayForRect (getScreenBounds()) : displays.getPrimaryDisplay();
+    if (d == nullptr)
+        return kDesignW;
+    const auto area = d->userArea;
+    const int byWidth = area.getWidth() - 40;
+    const int byHeight = juce::roundToInt ((area.getHeight() - 110) * (double) kDesignW / kDesignH);
+    return juce::jlimit (kMinW, kMaxW, juce::jmin (byWidth, byHeight));
+}
+
+void DSCountEditor::toggleZoom()
+{
+    const int fit = fitWidth();
+    if (getWidth() >= fit - 8 && unzoomedWidth > 0)
+    {
+        setWidth (unzoomedWidth);
+        unzoomedWidth = 0;
+        return;
+    }
+    unzoomedWidth = getWidth();
+    setWidth (fit);
 }
 
 void DSCountEditor::resetMeters()
@@ -402,6 +438,9 @@ void DSCountEditor::paintChrome (juce::Graphics& g)
         const float x0 = m.area.getCentreX() - theme::textWidth (m.name) * 0.5f;
         g.fillRect (x0, m.area.getBottom() - 5.0f, w, 1.5f);
     }
+    // Minimise and maximise: they really resize the window.
+    theme::titleBox (g, kMinBox, false, false);
+    theme::titleBox (g, kMaxBox, true, false);
     // Toolbar.
     g.setColour (c::black);
     g.drawHorizontalLine (114, 0.0f, (float) kDesignW);
@@ -559,6 +598,15 @@ void DSCountEditor::showMenu (int index)
                 crtMenu.addItem (crtNames[i], true, (int) theme::crt() == i, [safe, i] { theme::setCrt ((theme::Crt) i); if (safe) safe->applySkin(); });
             meterMenu.addItem ("Sample Peak", true, ! shown.truePeakMeters, [setParam] { setParam (ids::peakMeter, 0.0f); });
             meterMenu.addItem ("True Peak", true, shown.truePeakMeters, [setParam] { setParam (ids::peakMeter, 1.0f); });
+            juce::PopupMenu sizeMenu;
+            for (int pct : { 60, 75, 100, 125, 150 })
+            {
+                const int w = kDesignW * pct / 100;
+                sizeMenu.addItem (juce::String (pct) + " %", true, std::abs (getWidth() - w) <= 4, [safe, w] { if (safe) safe->setWidth (w); });
+            }
+            sizeMenu.addSeparator();
+            sizeMenu.addItem ("Fit to Screen", true, false, [safe] { if (safe) safe->setWidth (safe->fitWidth()); });
+            m.addSubMenu ("Size", sizeMenu);
             m.addSubMenu ("Skin", skinMenu);
             m.addSubMenu ("Screen Effect", crtMenu);
             m.addSubMenu ("Peak Meters", meterMenu);

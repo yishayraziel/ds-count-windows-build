@@ -320,11 +320,20 @@ static void testEditor()
             check (p.presets.userNames().contains ("Dialog Test"), "OK in the save dialog saves the preset");
 #endif
         p.presets.deleteUser ("Dialog Test");
-        for (int w : { 1300, 2560 })
+        for (int w : { 972, 1215, 1620, 2025, 2430, 2560 })
         {
-            ed->setSize (w, w * 968 / 1620);
-            check (ed->getWidth() == w, "editor resizes");
+            ed->setWidth (w);
+            check (ed->getWidth() == w && ed->getHeight() == DSCountEditor::heightFor (w), "editor resizes with a fixed aspect ratio");
         }
+        ed->setWidth (500);
+        check (ed->getWidth() == DSCountEditor::kMinW, "editor does not go below 60 %");
+        ed->setWidth (1300);
+        ed->toggleZoom();
+        const int zoomed = ed->getWidth();
+        check (zoomed == ed->fitWidth(), "maximise box zooms to fit the screen");
+        ed->toggleZoom();
+        check (zoomed == 1300 || ed->getWidth() == 1300, "maximise box restores the previous size");
+        check (p.uiWidth == ed->getWidth(), "size is stored with the session");
     }
     p.editorBeingDeleted (e.get());
     e.reset();
@@ -368,7 +377,7 @@ static int snapshot (const juce::String& dir)
     dsq::theme::setSkinForTest (dsq::theme::Skin::win311);
     dsq::theme::setCrtForTest (dsq::theme::Crt::off);
     ed->applySkin();
-    ed->setSize (1300, 777);
+    ed->setWidth (DSCountEditor::kMinW);
     shot ("ui_small.png", 1.0f);
 
     p.editorBeingDeleted (e.get());

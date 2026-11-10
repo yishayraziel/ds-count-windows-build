@@ -7,6 +7,16 @@ class DSCountEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
     static constexpr int kDesignW = 1620, kDesignH = 968;
+    /** 60 % to 158 % of the design size; the default is 80 %. */
+    static constexpr int kMinW = 972, kMaxW = 2560, kDefaultW = 1296;
+    static int heightFor (int w) { return (int) std::lround (w * (double) kDesignH / kDesignW); }
+
+    /** Sets the editor width (the height follows the fixed aspect ratio), within the limits. */
+    void setWidth (int w);
+    /** The largest width that fits the screen the editor is on. */
+    int fitWidth() const;
+    /** The maximise box: largest size that fits, and back. */
+    void toggleZoom();
 
     explicit DSCountEditor (DSCountProcessor&);
     ~DSCountEditor() override;
@@ -70,7 +80,7 @@ private:
 
     std::vector<MenuItem> menus;
     juce::Rectangle<float> metersArea, peakModePane;
-    int generation = -1;
+    int generation = -1, unzoomedWidth = 0;
     dsq::ChainParams shown;
     Bar in[2], out[2];
     float tpMax = -120.0f, momentary = -200, shortTerm = -200, integrated = -200;
