@@ -25,7 +25,7 @@ static void setPlain (DSCountProcessor& p, const juce::String& id, float v)
 
 static float getPlain (DSCountProcessor& p, const juce::String& id) { return p.apvts.getRawParameterValue (id)->load(); }
 
-#if JUCE_LINUX
+#if JUCE_LINUX || JUCE_WINDOWS
 namespace juce::detail { bool dispatchNextMessageOnSystemQueue (bool returnIfNoPendingMessages); }
 #endif
 /** Delivers pending messages (modal callbacks, async calls). */
