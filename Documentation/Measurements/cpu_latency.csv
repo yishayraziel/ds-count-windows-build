@@ -1,0 +1,7 @@
+configuration,sample_rate,latency_samples,latency_ms,realtime_percent_one_core
+Full band, no limiter,48000,3118,64.96,7.5
+Band, Type 2 limiter,48000,3118,64.96,12.8
+Band, Type 2 limiter,96000,6142,63.98,15.2
+Band, Type 2 limiter,192000,12126,63.16,13.7
+Low Latency, full band,48000,302,6.29,2.0
+Low Latency, band, Type 2,48000,302,6.29,5.8

@@ -1,0 +1,10 @@
+signal,limiter,input_dbtp,input_sample_db,output_dbtp,output_sample_db
+fs/4 at 45 degrees,Safe,-0.000,-3.010,-0.000,-3.010
+fs/4 at 45 degrees,Type 1,-0.000,-3.010,-0.000,-3.010
+fs/4 at 45 degrees,Type 2 (TP),-0.000,-3.010,-1.000,-4.010
+11.03 kHz tone,Safe,-0.445,-0.446,-1.000,-1.000
+11.03 kHz tone,Type 1,-0.445,-0.446,-1.000,-1.000
+11.03 kHz tone,Type 2 (TP),-0.445,-0.446,-1.002,-1.003
+Percussive noise, +5 dB,Safe,5.678,4.175,0.607,-1.000
+Percussive noise, +5 dB,Type 1,5.678,4.175,0.505,-1.000
+Percussive noise, +5 dB,Type 2 (TP),5.678,4.175,-0.961,-1.362

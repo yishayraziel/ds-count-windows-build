@@ -1,0 +1,31 @@
+name: DS-COUNT Windows x64
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build plug-in, tests and installer
+        shell: pwsh
+        run: ./scripts/build-windows.ps1
+      - name: Install, validate and uninstall
+        shell: pwsh
+        run: ./scripts/validate-windows.ps1
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: DS-COUNT-Windows-x64
+          if-no-files-found: error
+          path: dist/*.exe
+      - name: Upload test and validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DS-COUNT-Windows-logs
+          path: outputs/**

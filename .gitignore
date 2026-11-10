@@ -1,0 +1,12 @@
+build/
+build-mac/
+build-tests/
+Output/
+.tools/
+.tools-pv.zip
+*_log.txt
+Documentation/Measurements/mac/
+build-windows/
+dist/
+outputs/
+validation-tools/
