@@ -4,7 +4,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: windows-2022
@@ -29,3 +29,18 @@ jobs:
         with:
           name: DS-COUNT-Windows-logs
           path: outputs/**
+      - name: Publish release (Windows installer + notarized Mac disk image)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Select-String -Path CMakeLists.txt -Pattern 'project\(DSCount VERSION ([0-9.]+)').Matches[0].Groups[1].Value
+          $tag = "v$version"
+          $files = @(Get-ChildItem dist/*.exe) + @(Get-ChildItem release/*.dmg -ErrorAction SilentlyContinue) | ForEach-Object { $_.FullName }
+          gh release view $tag 2>$null | Out-Null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag @files --clobber
+          } else {
+            gh release create $tag @files --title "DS-COUNT $version" --notes "DS-COUNT $version by Yishay Raziel. Mac: notarized disk image (VST3, AU, Standalone). Windows x64: installer (VST3, Standalone). https://yraziel.com/ds-count"
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Release publish failed' }
